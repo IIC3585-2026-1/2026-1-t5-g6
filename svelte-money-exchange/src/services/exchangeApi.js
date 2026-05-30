@@ -88,6 +88,3 @@ export async function getHistoricalRates(source, target, days = 7) {
     throw error;
   }
 }
-
-const fecha = await getHistoricalRates("USD", "CLP");
-console.log("historial:", fecha);
