@@ -79,7 +79,7 @@ export const useExchangeStore = defineStore("exchange", () => {
           name: currencyName,
         };
       })
-      .sort((a, b) => a.name.localeCompare(b.name));
+      .sort((a, b) => a.code.localeCompare(b.code));
   });
 
   return {
