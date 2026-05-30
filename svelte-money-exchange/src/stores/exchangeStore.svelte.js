@@ -19,7 +19,7 @@ function createExchangeStore() {
    * @returns number
    */
 
-  async function getQuickConversion(customAmount, from, to) {
+  function getQuickConversion(customAmount, from, to) {
     if (!rates[from] || !rates[to]) return 0;
     const sourceRate = rates[from];
     const targetRate = rates[to];
