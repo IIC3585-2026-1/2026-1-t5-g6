@@ -1,30 +1,48 @@
 <script setup>
-import { ref } from "vue";
+import { computed, onMounted } from "vue";
+import { useExchangeStore } from "./store/useExchangeStore";
 
-const amount = ref(0);
+const store = useExchangeStore();
+
 const currencies = [
-  { code: "USD", name: "Dólar Estadounidense", rate: 1 },
-  { code: "EUR", name: "Euro", rate: 0.92 },
-  { code: "CLP", name: "Peso Chileno", rate: 940 },
-  { code: "ARS", name: "Peso Argentino", rate: 890 },
-  { code: "MXN", name: "Peso Mexicano", rate: 17 },
+  { code: "USD", name: "Dólar Estadounidense" },
+  { code: "EUR", name: "Euro" },
+  { code: "CLP", name: "Peso Chileno" },
+  { code: "ARS", name: "Peso Argentino" },
+  { code: "MXN", name: "Peso Mexicano" },
 ];
-const selectedBaseCurrency = ref("CLP");
-const selectedCurrency = ref("USD");
 
-const result = ref(null);
+onMounted(async () => {
+  await store.loadRates();
+  console.log(store.rates);
+});
+
+const rightAmount = computed({
+  get() {
+    return Math.round(store.convertedAmount * 100) / 100;
+  },
+  set(newValue) {
+    const sourceRate = store.rates[store.sourceCurrency];
+    const targetRate = store.rates[store.targetCurrency];
+
+    if (sourceRate && targetRate) {
+      store.amount = newValue * (sourceRate / targetRate);
+    }
+  },
+});
 </script>
 
 <template>
   <main>
     <h1>Conversor de moneda</h1>
-    <div class="exchange-container">
-      <input type="number" v-model="amount" />
+    <div v-if="!store.isLoading" class="exchange-container">
       <p style="margin-top: 0.5rem; margin-bottom: -0.5rem">
-        El cambio está en
+        1.000 {{ store.sourceCurrency }} es equivalente a
+        {{ (store.rates[store.targetCurrency] * 1000).toFixed(2) }}
+        {{ store.targetCurrency }}
       </p>
       <div class="dropdown-display">
-        <select v-model="selectedBaseCurrency">
+        <select v-model="store.sourceCurrency">
           <option
             v-for="currency in currencies"
             :key="currency.code"
@@ -34,7 +52,7 @@ const result = ref(null);
           </option>
         </select>
         <img src="./assets/move-right.svg" />
-        <select v-model="selectedCurrency">
+        <select v-model="store.targetCurrency">
           <option
             v-for="currency in currencies"
             :key="currency.code"
@@ -44,14 +62,19 @@ const result = ref(null);
           </option>
         </select>
       </div>
-      <p v-if="result">{{ result }}</p>
+      <div class="input-display">
+        <input type="number" v-model="store.amount" />
+        <img src="./assets/move-right.svg" alt="flecha" />
+        <input type="number" v-model="rightAmount" />
+      </div>
     </div>
   </main>
 </template>
 
 <style scoped>
 main {
-  width: 100%;
+  margin: auto;
+  width: fit-content;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -83,6 +106,13 @@ main {
     padding: 0.5rem 0.75rem;
     font-family: monospace;
   }
+}
+
+.input-display {
+  display: flex;
+  justify-content: space-evenly;
+  gap: 1rem;
+  align-items: center;
 }
 
 .dropdown-display {
