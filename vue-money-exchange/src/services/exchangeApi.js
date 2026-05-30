@@ -43,6 +43,3 @@ export async function fetchLatestRates(currency = 'CLP') {
     throw error;
   }
 }
-
-const rateData = await fetchLatestRates("UD");
-console.log("Rates:", rateData)
