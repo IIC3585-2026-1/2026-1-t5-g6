@@ -25,24 +25,47 @@ export const useExchangeStore = defineStore("exchange", () => {
   }
 
   const convertedAmount = computed(() => {
-    if (!rates.value[sourceCurrency.value] || !rates.value[targetCurrency.value]) {
+    if (
+      !rates.value[sourceCurrency.value] ||
+      !rates.value[targetCurrency.value]
+    ) {
       return 0;
     }
 
     const sourceRate = rates.value[sourceCurrency.value];
     const targetRate = rates.value[targetCurrency.value];
-    
+
     return amount.value * (targetRate / sourceRate);
+  });
+
+  const rightAmount = computed({
+    get() {
+      return Math.round(convertedAmount.value * 100) / 100;
+    },
+    set(newValue) {
+      if (
+        !rates.value[sourceCurrency.value] ||
+        !rates.value[targetCurrency.value]
+      )
+        return;
+
+      const sourceRate = rates.value[sourceCurrency.value];
+      const targetRate = rates.value[targetCurrency.value];
+
+      amount.value = newValue * (sourceRate / targetRate);
+    },
   });
 
   const availableCurrencies = computed(() => {
     const minValue = 0.00001;
 
-    const currencyTranslator = new Intl.DisplayNames(['es'], { type: 'currency' });
-    
+    const currencyTranslator = new Intl.DisplayNames(["es"], {
+      type: "currency",
+    });
+
     return Object.keys(rates.value)
-      .filter(currency => rates.value[currency] > minValue)
-      .map(currencyCode => {
+      .filter((currency) => rates.value[currency] > minValue)
+      .map((currencyCode) => {
         let currencyName = currencyCode;
 
         try {
@@ -68,7 +91,8 @@ export const useExchangeStore = defineStore("exchange", () => {
     isLoading,
     error,
     convertedAmount,
+    rightAmount,
     availableCurrencies,
-    loadRates
-  }
+    loadRates,
+  };
 });

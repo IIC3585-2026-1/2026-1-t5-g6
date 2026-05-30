@@ -1,57 +1,56 @@
 <script setup>
-import { ref } from "vue";
+import { onMounted } from "vue";
+import { useExchangeStore } from "./store/useExchangeStore";
 
-const amount = ref(0);
-const currencies = [
-  { code: "USD", name: "Dólar Estadounidense", rate: 1 },
-  { code: "EUR", name: "Euro", rate: 0.92 },
-  { code: "CLP", name: "Peso Chileno", rate: 940 },
-  { code: "ARS", name: "Peso Argentino", rate: 890 },
-  { code: "MXN", name: "Peso Mexicano", rate: 17 },
-];
-const selectedBaseCurrency = ref("CLP");
-const selectedCurrency = ref("USD");
+const store = useExchangeStore();
 
-const result = ref(null);
+onMounted(async () => {
+  await store.loadRates();
+});
 </script>
 
 <template>
   <main>
     <h1>Conversor de moneda</h1>
-    <div class="exchange-container">
-      <input type="number" v-model="amount" />
-      <p style="margin-top: 0.5rem; margin-bottom: -0.5rem">
-        El cambio está en
-      </p>
-      <div class="dropdown-display">
-        <select v-model="selectedBaseCurrency">
-          <option
-            v-for="currency in currencies"
-            :key="currency.code"
-            :value="currency.code"
-          >
-            {{ currency.name }}
-          </option>
-        </select>
-        <img src="./assets/move-right.svg" />
-        <select v-model="selectedCurrency">
-          <option
-            v-for="currency in currencies"
-            :key="currency.code"
-            :value="currency.code"
-          >
-            {{ currency.name }}
-          </option>
-        </select>
+    <div v-if="!store.isLoading" class="exchange-container">
+      <div class="currencies-display">
+        <div class="currency-box">
+          <input type="number" v-model="store.amount" />
+          <select v-model="store.sourceCurrency">
+            <option
+              v-for="currency in store.availableCurrencies"
+              :key="currency.code"
+              :value="currency.code"
+            >
+              {{ currency.code }} - {{ currency.name }}
+            </option>
+          </select>
+        </div>
+        <p>
+          1.000 {{ store.sourceCurrency }} es equivalente a
+          {{ (store.rates[store.targetCurrency] * 1000).toFixed(2) }}
+          {{ store.targetCurrency }}
+        </p>
+        <div class="currency-box">
+          <input type="number" v-model="store.rightAmount" />
+          <select v-model="store.targetCurrency">
+            <option
+              v-for="currency in store.availableCurrencies"
+              :key="currency.code"
+              :value="currency.code"
+            >
+              {{ currency.code }} - {{ currency.name }}
+            </option>
+          </select>
+        </div>
       </div>
-      <p v-if="result">{{ result }}</p>
     </div>
   </main>
 </template>
 
 <style scoped>
 main {
-  width: 100%;
+  margin: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -76,7 +75,6 @@ main {
   flex-direction: column;
   gap: 1rem;
   align-items: center;
-  width: 30vw;
 
   input {
     border: none;
@@ -85,20 +83,41 @@ main {
   }
 }
 
-.dropdown-display {
+.currencies-display {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+}
+
+.currency-box {
   display: flex;
   flex-direction: row;
-  width: 100%;
-  align-items: center;
-  justify-content: space-evenly;
+  background-color: #fff;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  gap: 1rem;
+
+  input {
+    border: none;
+    outline: none;
+    font-family: monospace;
+    padding: 0.5rem 0;
+    background: transparent;
+    width: 100%;
+  }
 
   select {
     font-family:
       "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
-    background: #fff;
+    background: transparent;
     border: none;
-    padding: 0.25rem 0.5rem;
-    border-radius: 1rem;
+    outline: none;
+    padding: 0.5rem 0;
+    color: #666;
+    cursor: pointer;
+    width: 100%;
+    text-transform: capitalize;
   }
 }
 </style>
