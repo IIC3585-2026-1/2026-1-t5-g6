@@ -12,9 +12,9 @@ export const useExchangeStore = defineStore("exchange", () => {
   const error = ref(null);
 
   function getQuickConversion(customAmount, from, to) {
-    if (!rates[from] || !rates[to]) return 0;
-    const sourceRate = rates[from];
-    const targetRate = rates[to];
+    if (!rates.value[from] || !rates.value[to]) return 0;
+    const sourceRate = rates.value[from];
+    const targetRate = rates.value[to];
 
     return customAmount * (targetRate / sourceRate);
   }
