@@ -37,9 +37,26 @@ export const useExchangeStore = defineStore("exchange", () => {
 
   const availableCurrencies = computed(() => {
     const minValue = 0.00001;
-    Object.keys(rates.value)
-    .filter(currency => rates.value[currency] > minValue)
-    .sort()
+
+    const currencyTranslator = new Intl.DisplayNames(['es'], { type: 'currency' });
+    
+    return Object.keys(rates.value)
+      .filter(currency => rates.value[currency] > minValue)
+      .map(currencyCode => {
+        let currencyName = currencyCode;
+
+        try {
+          currencyName = currencyTranslator.of(currencyCode);
+        } catch (e) {
+          console.warn(`No se encontró traducción para ${currencyCode}`);
+        }
+
+        return {
+          code: currencyCode,
+          name: currencyName,
+        };
+      })
+      .sort((a, b) => a.name.localeCompare(b.name));
   });
 
   return {
