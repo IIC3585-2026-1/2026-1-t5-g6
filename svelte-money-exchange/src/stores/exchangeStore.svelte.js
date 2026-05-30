@@ -11,6 +11,22 @@ function createExchangeStore() {
   /** @type {string | null} */
   let error = $state(null);
 
+  /**
+   * 
+   * @param {number} customAmount 
+   * @param {string} from 
+   * @param {string} to 
+   * @returns number
+   */
+
+  async function getQuickConversion(customAmount, from, to) {
+    if (!rates[from] || !rates[to]) return 0;
+    const sourceRate = rates[from];
+    const targetRate = rates[to];
+
+    return customAmount * (targetRate / sourceRate);
+  }
+
   async function loadRates() {
     isLoading = true;
     error = null;
@@ -26,9 +42,7 @@ function createExchangeStore() {
   }
 
   let convertedAmount = $derived(
-    (!rates[sourceCurrency] || !rates[targetCurrency]) 
-      ? 0 
-      : amount * (rates[targetCurrency] / rates[sourceCurrency])
+    getQuickConversion(amount, sourceCurrency, targetCurrency)
   );
 
   let availableCurrencies = $derived.by(() => {
@@ -80,6 +94,7 @@ function createExchangeStore() {
 
       amount = newValue * (sourceRate / targetRate);
     },
+    getQuickConversion,
     loadRates,
   }
 };

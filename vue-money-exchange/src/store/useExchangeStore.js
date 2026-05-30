@@ -11,6 +11,14 @@ export const useExchangeStore = defineStore("exchange", () => {
   const isLoading = ref(false);
   const error = ref(null);
 
+  async function getQuickConversion(customAmount, from, to) {
+    if (!rates[from] || !rates[to]) return 0;
+    const sourceRate = rates[from];
+    const targetRate = rates[to];
+
+    return customAmount * (targetRate / sourceRate);
+  }
+
   async function loadRates() {
     isLoading.value = true;
     error.value = null;
@@ -24,19 +32,9 @@ export const useExchangeStore = defineStore("exchange", () => {
     }
   }
 
-  const convertedAmount = computed(() => {
-    if (
-      !rates.value[sourceCurrency.value] ||
-      !rates.value[targetCurrency.value]
-    ) {
-      return 0;
-    }
-
-    const sourceRate = rates.value[sourceCurrency.value];
-    const targetRate = rates.value[targetCurrency.value];
-
-    return amount.value * (targetRate / sourceRate);
-  });
+  const convertedAmount = computed(() => 
+    getQuickConversion(amount.value, sourceCurrency.value, targetCurrency.value)
+  );
 
   const rightAmount = computed({
     get() {
@@ -93,6 +91,7 @@ export const useExchangeStore = defineStore("exchange", () => {
     convertedAmount,
     rightAmount,
     availableCurrencies,
+    getQuickConversion,
     loadRates,
   };
 });
