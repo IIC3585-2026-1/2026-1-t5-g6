@@ -1,34 +1,11 @@
 <script setup>
-import { computed, onMounted } from "vue";
+import { onMounted } from "vue";
 import { useExchangeStore } from "./store/useExchangeStore";
 
 const store = useExchangeStore();
 
-const currencies = [
-  { code: "USD", name: "Dólar Estadounidense" },
-  { code: "EUR", name: "Euro" },
-  { code: "CLP", name: "Peso Chileno" },
-  { code: "ARS", name: "Peso Argentino" },
-  { code: "MXN", name: "Peso Mexicano" },
-];
-
 onMounted(async () => {
   await store.loadRates();
-  console.log(store.rates);
-});
-
-const rightAmount = computed({
-  get() {
-    return Math.round(store.convertedAmount * 100) / 100;
-  },
-  set(newValue) {
-    const sourceRate = store.rates[store.sourceCurrency];
-    const targetRate = store.rates[store.targetCurrency];
-
-    if (sourceRate && targetRate) {
-      store.amount = newValue * (sourceRate / targetRate);
-    }
-  },
 });
 </script>
 
@@ -36,36 +13,36 @@ const rightAmount = computed({
   <main>
     <h1>Conversor de moneda</h1>
     <div v-if="!store.isLoading" class="exchange-container">
-      <p style="margin-top: 0.5rem; margin-bottom: -0.5rem">
-        1.000 {{ store.sourceCurrency }} es equivalente a
-        {{ (store.rates[store.targetCurrency] * 1000).toFixed(2) }}
-        {{ store.targetCurrency }}
-      </p>
-      <div class="dropdown-display">
-        <select v-model="store.sourceCurrency">
-          <option
-            v-for="currency in currencies"
-            :key="currency.code"
-            :value="currency.code"
-          >
-            {{ currency.name }}
-          </option>
-        </select>
-        <img src="./assets/move-right.svg" />
-        <select v-model="store.targetCurrency">
-          <option
-            v-for="currency in currencies"
-            :key="currency.code"
-            :value="currency.code"
-          >
-            {{ currency.name }}
-          </option>
-        </select>
-      </div>
-      <div class="input-display">
-        <input type="number" v-model="store.amount" />
-        <img src="./assets/move-right.svg" alt="flecha" />
-        <input type="number" v-model="rightAmount" />
+      <div class="currencies-display">
+        <div class="currency-box">
+          <input type="number" v-model="store.amount" />
+          <select v-model="store.sourceCurrency">
+            <option
+              v-for="currency in store.availableCurrencies"
+              :key="currency.code"
+              :value="currency.code"
+            >
+              {{ currency.code }} - {{ currency.name }}
+            </option>
+          </select>
+        </div>
+        <p>
+          1.000 {{ store.sourceCurrency }} es equivalente a
+          {{ (store.rates[store.targetCurrency] * 1000).toFixed(2) }}
+          {{ store.targetCurrency }}
+        </p>
+        <div class="currency-box">
+          <input type="number" v-model="store.rightAmount" />
+          <select v-model="store.targetCurrency">
+            <option
+              v-for="currency in store.availableCurrencies"
+              :key="currency.code"
+              :value="currency.code"
+            >
+              {{ currency.code }} - {{ currency.name }}
+            </option>
+          </select>
+        </div>
       </div>
     </div>
   </main>
@@ -74,7 +51,6 @@ const rightAmount = computed({
 <style scoped>
 main {
   margin: auto;
-  width: fit-content;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -99,7 +75,6 @@ main {
   flex-direction: column;
   gap: 1rem;
   align-items: center;
-  width: 30vw;
 
   input {
     border: none;
@@ -108,27 +83,41 @@ main {
   }
 }
 
-.input-display {
+.currencies-display {
   display: flex;
-  justify-content: space-evenly;
+  flex-direction: column;
   gap: 1rem;
   align-items: center;
 }
 
-.dropdown-display {
+.currency-box {
   display: flex;
   flex-direction: row;
-  width: 100%;
-  align-items: center;
-  justify-content: space-evenly;
+  background-color: #fff;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  gap: 1rem;
+
+  input {
+    border: none;
+    outline: none;
+    font-family: monospace;
+    padding: 0.5rem 0;
+    background: transparent;
+    width: 100%;
+  }
 
   select {
     font-family:
       "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
-    background: #fff;
+    background: transparent;
     border: none;
-    padding: 0.25rem 0.5rem;
-    border-radius: 1rem;
+    outline: none;
+    padding: 0.5rem 0;
+    color: #666;
+    cursor: pointer;
+    width: 100%;
+    text-transform: capitalize;
   }
 }
 </style>
