@@ -27,8 +27,14 @@ onMounted(async () => {
           </select>
         </div>
         <p>
-          1.000 {{ store.sourceCurrency }} es equivalente a
-          {{ (store.rates[store.targetCurrency] * 1000).toFixed(2) }}
+          1 {{ store.sourceCurrency }} es equivalente a
+          {{
+            store.getQuickConversion(
+              1,
+              store.sourceCurrency,
+              store.targetCurrency,
+            )
+          }}
           {{ store.targetCurrency }}
         </p>
         <div class="currency-box">

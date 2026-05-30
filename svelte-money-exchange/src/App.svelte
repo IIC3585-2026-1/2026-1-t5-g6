@@ -1,7 +1,7 @@
 <script>
   import { onMount } from "svelte";
   import { exchangeStore } from "./stores/exchangeStore.svelte";
-  
+
   onMount(() => {
     exchangeStore.loadRates();
   })
@@ -25,8 +25,8 @@
           </select>
         </div>
         <p>
-          1.000 { exchangeStore.sourceCurrency } es equivalente a
-          { (exchangeStore.rates[exchangeStore.targetCurrency] * 1000).toFixed(2) }
+          1 { exchangeStore.sourceCurrency } es equivalente a 
+          { (exchangeStore.getQuickConversion(1, exchangeStore.sourceCurrency, exchangeStore.targetCurrency)).toFixed(2)}
           { exchangeStore.targetCurrency }
         </p>
         <div class="currency-box">
