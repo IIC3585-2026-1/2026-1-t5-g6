@@ -69,6 +69,17 @@ function createExchangeStore() {
     get error() { return error; },
     get convertedAmount() { return convertedAmount; },
     get availableCurrencies() { return availableCurrencies; },
+    get rightAmount() { return Math.round(convertedAmount * 100) / 100; },
+    set rightAmount(newValue) {
+      if ( !rates[sourceCurrency] || !rates[targetCurrency]) {
+        return;
+      }
+
+      const sourceRate = rates[sourceCurrency];
+      const targetRate = rates[targetCurrency];
+
+      amount = newValue * (sourceRate / targetRate);
+    },
     loadRates,
   }
 };
