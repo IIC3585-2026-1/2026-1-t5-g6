@@ -1,89 +1,119 @@
 <script>
-  import svelteLogo from './assets/svelte.svg'
-  import viteLogo from './assets/vite.svg'
-  import heroImg from './assets/hero.png'
-  import Counter from './lib/Counter.svelte'
+  let amount = 1;
+  let sourceCurrency = "CLP";
+  let targetCurrency = "USD";
+  let currencies = [
+    { code: "USD", name: "Dólar Estadounidense" },
+    { code: "EUR", name: "Euro" },
+    { code: "CLP", name: "Peso Chileno" },
+    { code: "ARS", name: "Peso Argentino" },
+    { code: "MXN", name: "Peso Mexicano" },
+  ];
 </script>
 
-<section id="center">
-  <div class="hero">
-    <img src={heroImg} class="base" width="170" height="179" alt="" />
-    <img src={svelteLogo} class="framework" alt="Svelte logo" />
-    <img src={viteLogo} class="vite" alt="Vite logo" />
+<main>
+  <h1>Conversor de moneda</h1>
+  <div class="exchange-container">
+    <div class="currencies-display">
+      <div class="currency-box">
+        <input type="number" bind:value={amount} />
+        <select bind:value={sourceCurrency}>
+          {#each currencies as currency}
+          <option
+            value={currency.code}
+          >
+            { currency.code } - { currency.name }
+          </option>
+          {/each}
+        </select>
+      </div>
+      <div class="currency-box">
+        <input type="number" bind:value={amount} />
+        <select bind:value={targetCurrency}>
+          {#each currencies as currency}
+          <option
+            value={currency.code}
+          >
+            { currency.code } - { currency.name }
+          </option>
+          {/each}
+        </select>
+      </div>
+    </div>
   </div>
-  <div>
-    <h1>Get started</h1>
-    <p>Edit <code>src/App.svelte</code> and save to test <code>HMR</code></p>
-  </div>
-  <Counter />
-</section>
+</main>
 
-<div class="ticks"></div>
+<style>
 
-<section id="next-steps">
-  <div id="docs">
-    <svg class="icon" role="presentation" aria-hidden="true">
-      <use href="/icons.svg#documentation-icon"></use>
-    </svg>
-    <h2>Documentation</h2>
-    <p>Your questions, answered</p>
-    <ul>
-      <li>
-        <a href="https://vite.dev/" target="_blank" rel="noreferrer">
-          <img class="logo" src={viteLogo} alt="" />
-          Explore Vite
-        </a>
-      </li>
-      <li>
-        <a href="https://svelte.dev/" target="_blank" rel="noreferrer">
-          <img class="button-icon" src={svelteLogo} alt="" />
-          Learn more
-        </a>
-      </li>
-    </ul>
-  </div>
-  <div id="social">
-    <svg class="icon" role="presentation" aria-hidden="true">
-      <use href="/icons.svg#social-icon"></use>
-    </svg>
-    <h2>Connect with us</h2>
-    <p>Join the Vite community</p>
-    <ul>
-      <li>
-        <a href="https://github.com/vitejs/vite" target="_blank" rel="noreferrer">
-          <svg class="button-icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#github-icon"></use>
-          </svg>
-          GitHub
-        </a>
-      </li>
-      <li>
-        <a href="https://chat.vite.dev/" target="_blank" rel="noreferrer">
-          <svg class="button-icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#discord-icon"></use>
-          </svg>
-          Discord
-        </a>
-      </li>
-      <li>
-        <a href="https://x.com/vite_js" target="_blank" rel="noreferrer">
-          <svg class="button-icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#x-icon"></use>
-          </svg>
-          X.com
-        </a>
-      </li>
-      <li>
-        <a href="https://bsky.app/profile/vite.dev" target="_blank" rel="noreferrer">
-          <svg class="button-icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#bluesky-icon"></use>
-          </svg>
-          Bluesky
-        </a>
-      </li>
-    </ul>
-  </div>
-</section>
+main {
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
 
-<div class="ticks"></div>
-<section id="spacer"></section>
+  h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 1rem 0;
+    text-transform: uppercase;
+    color: #1a1a1a;
+  }
+}
+
+.exchange-container {
+  padding: 1rem 1.25rem;
+  border-radius: 1rem;
+  box-shadow: 0 0.25rem 0.5rem 0 #dbc5d3;
+  background: #ffebfa;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+
+  input {
+    border: none;
+    padding: 0.5rem 0.75rem;
+    font-family: monospace;
+  }
+}
+
+.currencies-display {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+}
+
+.currency-box {
+  display: flex;
+  flex-direction: row;
+  background-color: #fff;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  gap: 1rem;
+
+  input {
+    border: none;
+    outline: none;
+    font-family: monospace;
+    padding: 0.5rem 0;
+    background: transparent;
+    width: 100%;
+  }
+
+  select {
+    font-family:
+      "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
+    background: transparent;
+    border: none;
+    outline: none;
+    padding: 0.5rem 0;
+    color: #666;
+    cursor: pointer;
+    width: 100%;
+    text-transform: capitalize;
+  }
+}
+</style>
