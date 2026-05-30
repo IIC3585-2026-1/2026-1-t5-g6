@@ -1,46 +1,49 @@
 <script>
-  let amount = 1;
-  let sourceCurrency = "CLP";
-  let targetCurrency = "USD";
-  let currencies = [
-    { code: "USD", name: "Dólar Estadounidense" },
-    { code: "EUR", name: "Euro" },
-    { code: "CLP", name: "Peso Chileno" },
-    { code: "ARS", name: "Peso Argentino" },
-    { code: "MXN", name: "Peso Mexicano" },
-  ];
+  import { onMount } from "svelte";
+  import { exchangeStore } from "./stores/exchangeStore.svelte";
+  
+  onMount(() => {
+    exchangeStore.loadRates();
+  })
 </script>
 
 <main>
   <h1>Conversor de moneda</h1>
-  <div class="exchange-container">
-    <div class="currencies-display">
-      <div class="currency-box">
-        <input type="number" bind:value={amount} />
-        <select bind:value={sourceCurrency}>
-          {#each currencies as currency}
-          <option
-            value={currency.code}
-          >
-            { currency.code } - { currency.name }
-          </option>
-          {/each}
-        </select>
-      </div>
-      <div class="currency-box">
-        <input type="number" bind:value={amount} />
-        <select bind:value={targetCurrency}>
-          {#each currencies as currency}
-          <option
-            value={currency.code}
-          >
-            { currency.code } - { currency.name }
-          </option>
-          {/each}
-        </select>
+  {#if !exchangeStore.isLoading}
+    <div class="exchange-container">
+      <div class="currencies-display">
+        <div class="currency-box">
+          <input type="number" bind:value={exchangeStore.amount} />
+          <select bind:value={exchangeStore.sourceCurrency}>
+            {#each exchangeStore.availableCurrencies as currency}
+            <option
+              value={currency.code}
+            >
+              { currency.code } - { currency.name }
+            </option>
+            {/each}
+          </select>
+        </div>
+        <p>
+          1.000 { exchangeStore.sourceCurrency } es equivalente a
+          { (exchangeStore.rates[exchangeStore.targetCurrency] * 1000).toFixed(2) }
+          { exchangeStore.targetCurrency }
+        </p>
+        <div class="currency-box">
+          <input type="number" bind:value={exchangeStore.rightAmount} />
+          <select bind:value={exchangeStore.targetCurrency}>
+            {#each exchangeStore.availableCurrencies as currency}
+            <option
+              value={currency.code}
+            >
+              { currency.code } - { currency.name }
+            </option>
+            {/each}
+          </select>
+        </div>
       </div>
     </div>
-  </div>
+  {/if}
 </main>
 
 <style>
