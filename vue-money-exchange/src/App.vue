@@ -1,10 +1,25 @@
 <script setup>
 import { onMounted } from "vue";
 import { useExchangeStore } from "./store/useExchangeStore";
+import ExchangeChart from "./components/ExchangeChart.vue";
+import ExchangeFabMenu from "./components/ExchangeFabMenu.vue";
 
 const store = useExchangeStore();
 
+function saveCurrentHistory() {
+  store.addHistory(
+    store.amount,
+    store.sourceCurrency,
+    store.targetCurrency,
+    store.rightAmount,
+  );
+}
+
 onMounted(async () => {
+  store.loadFavorites();
+  store.loadHistory();
+  store.loadCustomCurrencies();
+  store.loadPairOverrides();
   await store.loadRates();
 });
 </script>
@@ -15,7 +30,7 @@ onMounted(async () => {
     <div v-if="!store.isLoading" class="exchange-container">
       <div class="currencies-display">
         <div class="currency-box">
-          <input type="number" v-model="store.amount" />
+          <input type="number" v-model.number="store.amount" />
           <select v-model="store.sourceCurrency">
             <option
               v-for="currency in store.availableCurrencies"
@@ -26,19 +41,21 @@ onMounted(async () => {
             </option>
           </select>
         </div>
-        <p>
+        <p class="conversion-text">
           1 {{ store.sourceCurrency }} es equivalente a
           {{
             store.getQuickConversion(
               1,
               store.sourceCurrency,
               store.targetCurrency,
-            )
+            ).toFixed(2)
           }}
           {{ store.targetCurrency }}
+          <button class="mini-btn" @click="store.swapCurrencies">↔</button>
+          <button class="mini-btn" @click="saveCurrentHistory">💾</button>
         </p>
         <div class="currency-box">
-          <input type="number" v-model="store.rightAmount" />
+          <input type="number" v-model.number="store.rightAmount" />
           <select v-model="store.targetCurrency">
             <option
               v-for="currency in store.availableCurrencies"
@@ -50,7 +67,22 @@ onMounted(async () => {
           </select>
         </div>
       </div>
+
+      <section class="history-section">
+        <h2>Historial</h2>
+        <ul v-if="store.history.length">
+          <li v-for="item in store.history" :key="item.date">
+            <span class="h-amt">{{ item.amount }}</span>
+            <span class="h-pair">{{ item.from }}→{{ item.to }}</span>
+            <span class="h-res">= {{ item.result }}</span>
+          </li>
+        </ul>
+        <p v-else class="empty-history">Sin entradas</p>
+      </section>
     </div>
+
+    <ExchangeChart v-if="!store.isLoading" />
+    <ExchangeFabMenu v-if="!store.isLoading" />
   </main>
 </template>
 
@@ -81,6 +113,8 @@ main {
   flex-direction: column;
   gap: 1rem;
   align-items: center;
+  width: 100%;
+  max-width: 560px;
 
   input {
     border: none;
@@ -94,6 +128,7 @@ main {
   flex-direction: column;
   gap: 1rem;
   align-items: center;
+  width: 100%;
 }
 
 .currency-box {
@@ -103,6 +138,7 @@ main {
   border-radius: 0.5rem;
   padding: 0.5rem 1rem;
   gap: 1rem;
+  width: 100%;
 
   input {
     border: none;
@@ -124,6 +160,71 @@ main {
     cursor: pointer;
     width: 100%;
     text-transform: capitalize;
+  }
+}
+
+.conversion-text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  text-align: center;
+}
+
+.mini-btn {
+  border: none;
+  border-radius: 999px;
+  background: #fff;
+  color: #555;
+  cursor: pointer;
+  padding: 0.25rem 0.55rem;
+}
+
+.history-section {
+  width: 100%;
+  background: #fff;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+}
+
+.history-section h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #444;
+}
+
+.history-section ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.history-section li {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  font-family: monospace;
+}
+
+.empty-history {
+  margin: 0;
+  color: #777;
+  text-align: center;
+}
+
+@media (max-width: 640px) {
+  .exchange-container {
+    max-width: calc(100vw - 1rem);
+  }
+
+  .currency-box {
+    flex-direction: column;
   }
 }
 </style>
